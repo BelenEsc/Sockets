@@ -1,15 +1,19 @@
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
 public class Cliente {
@@ -27,9 +31,8 @@ class Marco extends JFrame {
 	public Marco() {
 
 		setTitle("Cliente");
-		setBounds(30, 30, 300, 300);
+		setBounds(30, 30, 300, 350);
 		setDefaultCloseOperation(3);
-
 		LaminaCliente laminaCliente = new LaminaCliente();
 		add(laminaCliente);
 		setVisible(true);
@@ -41,29 +44,55 @@ class LaminaCliente extends JPanel {
 
 	private JTextField campo1;
 	private JButton boton;
+	private JTextArea areaTexto;
+	private JTextField nick, IP ;
 
 	public LaminaCliente() {
-
-		JLabel texto = new JLabel("Cliente");
+		nick = new JTextField(5);
+		add(nick);
+		JLabel texto = new JLabel("-Chat-");
+		texto.setFont(new Font("Arial",1,14));
 		add(texto);
-
+		IP= new JTextField(8);
+		add(IP);
+		
+		areaTexto = new JTextArea(12, 20);
+		add(areaTexto);
 		campo1 = new JTextField(20);
 		add(campo1);
 		boton = new JButton("Enviar");
 		add(boton);
 
 		boton.addActionListener(new ActionListener() {
+			String ip;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-
-				System.out.println(campo1.getText());
 				try {
-					Socket socket = new Socket("192.168.81.1", 9999);
+					ip = InetAddress.getLocalHost().getHostAddress();
+				} catch (UnknownHostException r) {
+					// TODO Auto-generated catch block
+					r.printStackTrace();
+				}
+				try {
+					
+					Empaquetado paqueteDatos = new Empaquetado();
+					paqueteDatos.setNickName(nick.getText());
+					paqueteDatos.setIP(IP.getText());
+					paqueteDatos.setMensaje(campo1.getText());
+					
+					
+					Socket socket = new Socket(ip, 9999);
 
-					DataOutputStream salida = new DataOutputStream(socket.getOutputStream());
-					salida.writeUTF(campo1.getText());
-					salida.close();
+					ObjectOutputStream paqueteParaEnviar = new ObjectOutputStream(socket.getOutputStream());
+					paqueteParaEnviar.writeObject(paqueteDatos);
+					socket.close();
+					
+					
+					
+//					DataOutputStream salida = new DataOutputStream(socket.getOutputStream());
+//					salida.writeUTF(campo1.getText());
+//					salida.close();
 
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
@@ -76,4 +105,46 @@ class LaminaCliente extends JPanel {
 
 	}
 
+}
+
+class Empaquetado implements Serializable {
+	
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 12345;
+	private String nickName;
+	private String IP;
+	private String mensaje;
+	
+	public Empaquetado () {
+	
+	}
+	public String getNickName() {
+		return nickName;
+	}
+
+	public void setNickName(String nickName) {
+		this.nickName = nickName;
+	}
+
+	public String getIP() {
+		return IP;
+	}
+
+	public void setIP(String iP) {
+		IP = iP;
+	}
+
+	public String getMensaje() {
+		return mensaje;
+	}
+
+	public void setMensaje(String mensaje) {
+		this.mensaje = mensaje;
+	}
+
+	
+	
 }

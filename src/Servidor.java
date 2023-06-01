@@ -1,4 +1,9 @@
 import java.awt.BorderLayout;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
 
 import javax.swing.JFrame;
@@ -30,15 +35,46 @@ class Marco2 extends JFrame {
 
 }
 
-class Lamina2 extends JPanel{
+class Lamina2 extends JPanel implements Runnable {
 	private JTextArea textoServidor;
+
 	public Lamina2() {
 		setLayout(new BorderLayout());
-		textoServidor= new JTextArea();
-		add(textoServidor,BorderLayout.CENTER);
+		textoServidor = new JTextArea();
+		add(textoServidor, BorderLayout.CENTER);
+		Thread hilo = new Thread(this);
+		hilo.start();
+
 	}
-	
+
 	Socket puerta = new Socket();
-	
-	
+
+	@Override
+	public void run() {
+
+		try {
+			ServerSocket serverSocket = new ServerSocket(9999);
+			String nickInput;
+			String IPInput;
+			String mensajeInput;
+
+			while (true) {
+				Socket miSocket = serverSocket.accept();
+
+				ObjectInputStream entrada = new ObjectInputStream(miSocket.getInputStream());
+				Empaquetado entradaPaquete = (Empaquetado)entrada.readObject();
+				nickInput = entradaPaquete.getNickName();
+				IPInput = entradaPaquete.getIP();
+				mensajeInput = entradaPaquete.getMensaje();
+				textoServidor.append(nickInput + ": " + mensajeInput + "\n");
+				miSocket.close();
+			}
+		} catch (IOException | ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+//		System.out.println("hola" + hashCode());
+
+	}
 }
