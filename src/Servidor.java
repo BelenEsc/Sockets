@@ -1,4 +1,5 @@
 import java.awt.BorderLayout;
+import java.net.Socket;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
@@ -35,8 +36,9 @@ class Lamina2 extends JPanel{
 		setLayout(new BorderLayout());
 		textoServidor= new JTextArea();
 		add(textoServidor,BorderLayout.CENTER);
-		
-		
 	}
+	
+	Socket puerta = new Socket();
+	
 	
 }

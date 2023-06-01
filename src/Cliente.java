@@ -1,6 +1,9 @@
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.DataOutput;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.Socket;
 
 import javax.swing.JButton;
@@ -57,13 +60,17 @@ class LaminaCliente extends JPanel {
 				System.out.println(campo1.getText());
 				try {
 					Socket socket = new Socket("192.168.81.1", 9999);
+
+					DataOutputStream salida = new DataOutputStream(socket.getOutputStream());
+					salida.writeUTF(campo1.getText());
+					salida.close();
+
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 					System.out.println(e1.getMessage());
 
 				}
-
 			}
 		});
 
