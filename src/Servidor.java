@@ -3,6 +3,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -67,6 +68,11 @@ class Lamina2 extends JPanel implements Runnable {
 				IPInput = entradaPaquete.getIP();
 				mensajeInput = entradaPaquete.getMensaje();
 				textoServidor.append(nickInput + ": " + mensajeInput + "\n");
+				
+				Socket miSocketSalida = new Socket(IPInput,9090);
+				ObjectOutputStream salidaPaquete = new ObjectOutputStream(miSocketSalida.getOutputStream());
+				salidaPaquete.writeObject(entradaPaquete);
+				miSocketSalida.close();
 				miSocket.close();
 			}
 		} catch (IOException | ClassNotFoundException e) {

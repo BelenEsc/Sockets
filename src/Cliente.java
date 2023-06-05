@@ -3,9 +3,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.InetAddress;
+import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
@@ -40,22 +42,22 @@ class Marco extends JFrame {
 
 }
 
-class LaminaCliente extends JPanel {
+class LaminaCliente extends JPanel implements Runnable {
 
 	private JTextField campo1;
 	private JButton boton;
 	private JTextArea areaTexto;
-	private JTextField nick, IP ;
+	private JTextField nick, IP;
 
 	public LaminaCliente() {
 		nick = new JTextField(5);
 		add(nick);
 		JLabel texto = new JLabel("-Chat-");
-		texto.setFont(new Font("Arial",1,14));
+		texto.setFont(new Font("Arial", 1, 14));
 		add(texto);
-		IP= new JTextField(8);
+		IP = new JTextField(8);
 		add(IP);
-		
+
 		areaTexto = new JTextArea(12, 20);
 		add(areaTexto);
 		campo1 = new JTextField(20);
@@ -75,21 +77,18 @@ class LaminaCliente extends JPanel {
 					r.printStackTrace();
 				}
 				try {
-					
+
 					Empaquetado paqueteDatos = new Empaquetado();
 					paqueteDatos.setNickName(nick.getText());
 					paqueteDatos.setIP(IP.getText());
 					paqueteDatos.setMensaje(campo1.getText());
-					
-					
+
 					Socket socket = new Socket(ip, 9999);
 
 					ObjectOutputStream paqueteParaEnviar = new ObjectOutputStream(socket.getOutputStream());
 					paqueteParaEnviar.writeObject(paqueteDatos);
 					socket.close();
-					
-					
-					
+
 //					DataOutputStream salida = new DataOutputStream(socket.getOutputStream());
 //					salida.writeUTF(campo1.getText());
 //					salida.close();
@@ -102,14 +101,42 @@ class LaminaCliente extends JPanel {
 				}
 			}
 		});
+		
+		Thread miHilo = new Thread(this);
+		miHilo.start();
 
+	}
+
+	@Override
+	public void run() {
+
+		try {
+			ServerSocket socketRegreso = new ServerSocket(9090);
+			Socket devuelta;
+			Empaquetado regreso;
+
+			while (true) {
+				devuelta = socketRegreso.accept();
+				ObjectInputStream recibido = new ObjectInputStream(devuelta.getInputStream());
+
+				
+				regreso = (Empaquetado)recibido.readObject();
+				areaTexto.append(regreso.getNickName()+": " + regreso.getMensaje()+"\n");
+				
+				
+				
+				
+			}
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
 	}
 
 }
 
 class Empaquetado implements Serializable {
-	
-	
+
 	/**
 	 * 
 	 */
@@ -117,10 +144,11 @@ class Empaquetado implements Serializable {
 	private String nickName;
 	private String IP;
 	private String mensaje;
-	
-	public Empaquetado () {
-	
+
+	public Empaquetado() {
+
 	}
+
 	public String getNickName() {
 		return nickName;
 	}
@@ -145,6 +173,4 @@ class Empaquetado implements Serializable {
 		this.mensaje = mensaje;
 	}
 
-	
-	
 }
