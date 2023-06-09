@@ -23,7 +23,12 @@ public class Cliente {
 	public static void main(String[] args) {
 
 		Marco marco = new Marco();
-
+		try {
+			System.out.println(InetAddress.getLocalHost().getHostAddress());
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 }
@@ -66,16 +71,10 @@ class LaminaCliente extends JPanel implements Runnable {
 		add(boton);
 
 		boton.addActionListener(new ActionListener() {
-			String ip;
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				try {
-					ip = InetAddress.getLocalHost().getHostAddress();
-				} catch (UnknownHostException r) {
-					// TODO Auto-generated catch block
-					r.printStackTrace();
-				}
+			
 				try {
 
 					Empaquetado paqueteDatos = new Empaquetado();
@@ -83,11 +82,13 @@ class LaminaCliente extends JPanel implements Runnable {
 					paqueteDatos.setIP(IP.getText());
 					paqueteDatos.setMensaje(campo1.getText());
 
-					Socket socket = new Socket(ip, 9999);
+					Socket socket = new Socket("130.133.68.126", 9999);
 
 					ObjectOutputStream paqueteParaEnviar = new ObjectOutputStream(socket.getOutputStream());
 					paqueteParaEnviar.writeObject(paqueteDatos);
 					socket.close();
+					
+					System.out.println(InetAddress.getLocalHost().getHostAddress());
 
 //					DataOutputStream salida = new DataOutputStream(socket.getOutputStream());
 //					salida.writeUTF(campo1.getText());
