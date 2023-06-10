@@ -1,7 +1,8 @@
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataOutputStream;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -12,8 +13,10 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -43,24 +46,56 @@ class Marco extends JFrame {
 		LaminaCliente laminaCliente = new LaminaCliente();
 		add(laminaCliente);
 		setVisible(true);
+		addWindowListener(new EnvioOnline());
 	}
 
 }
+
+
+class EnvioOnline extends WindowAdapter{
+	public void windowOpened(WindowEvent e) {
+		try {
+			Socket miSocket =new Socket("192.168.44.128",9999);
+			Empaquetado datos= new Empaquetado();
+			datos.setMensaje("online");
+			ObjectOutputStream paqueteDatos = new ObjectOutputStream(miSocket.getOutputStream());
+			paqueteDatos.writeObject(datos);
+			miSocket.close();
+			
+		} catch (UnknownHostException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+	}
+}
+
 
 class LaminaCliente extends JPanel implements Runnable {
 
 	private JTextField campo1;
 	private JButton boton;
 	private JTextArea areaTexto;
-	private JTextField nick, IP;
+	private JLabel nick, nickNombre;
+	private JComboBox IP;
 
 	public LaminaCliente() {
-		nick = new JTextField(5);
+		nickNombre = new JLabel("Nick: ");
+		add(nickNombre);
+		nick = new JLabel();
+		String ponNick=JOptionPane.showInputDialog("pon tu nick");
+		nick.setText(ponNick);
 		add(nick);
-		JLabel texto = new JLabel("-Chat-");
+		JLabel texto = new JLabel("Online: ");
 		texto.setFont(new Font("Arial", 1, 14));
 		add(texto);
-		IP = new JTextField(8);
+		IP = new JComboBox();
+		IP.addItem("Usuario1");
+		IP.addItem("Usuario2");
+		IP.addItem("Usuario3");
 		add(IP);
 
 		areaTexto = new JTextArea(12, 20);
@@ -79,10 +114,10 @@ class LaminaCliente extends JPanel implements Runnable {
 
 					Empaquetado paqueteDatos = new Empaquetado();
 					paqueteDatos.setNickName(nick.getText());
-					paqueteDatos.setIP(IP.getText());
+					paqueteDatos.setIP(IP.getSelectedItem().toString());
 					paqueteDatos.setMensaje(campo1.getText());
 
-					Socket socket = new Socket("130.133.68.126", 9999);
+					Socket socket = new Socket("192.168.44.128", 9999);
 
 					ObjectOutputStream paqueteParaEnviar = new ObjectOutputStream(socket.getOutputStream());
 					paqueteParaEnviar.writeObject(paqueteDatos);
@@ -138,6 +173,7 @@ class LaminaCliente extends JPanel implements Runnable {
 
 class Empaquetado implements Serializable {
 
+	
 	/**
 	 * 
 	 */
