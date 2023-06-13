@@ -124,7 +124,6 @@ class LaminaCliente extends JPanel implements Runnable {
 					socket.close();
 					
 					System.out.println(InetAddress.getLocalHost().getHostAddress());
-
 //					DataOutputStream salida = new DataOutputStream(socket.getOutputStream());
 //					salida.writeUTF(campo1.getText());
 //					salida.close();
